@@ -1,0 +1,295 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PerfilUsuario {
+  ADMIN
+  FINANCEIRO
+  OPERADOR
+  LEITURA
+}
+
+enum TipoCliente {
+  PF
+  PJ
+  CONDOMINIO
+}
+
+enum TipoCobranca {
+  AVISTA
+  PARCELADO
+}
+
+enum StatusCobranca {
+  RASCUNHO
+  EMITIDA
+  ENVIADA
+  PREVENTIVA
+  COBRANCA_5_DIAS
+  COBRANCA_10_DIAS
+  COBRANCA_30_DIAS
+  NEGATIVACAO
+  PAGA
+  CANCELADA
+}
+
+enum StatusParcela {
+  PENDENTE
+  ENVIADA
+  PAGA
+  ATRASADA
+  EM_NEGATIVACAO
+  CANCELADA
+}
+
+enum StatusBoleto {
+  EMITIDO
+  ENVIADO
+  LIDO
+  RECEBIDO
+  PAGO
+  VENCIDO
+  CANCELADO
+}
+
+enum CanalInteracao {
+  EMAIL
+  WHATSAPP
+  LIGACAO
+  SISTEMA
+  MANUAL_INTERNO
+}
+
+enum ResultadoInteracao {
+  ENVIADO
+  LIDO
+  RECEBIDO
+  RESPONDIDO
+  SEM_RESPOSTA
+  PROMESSA_PAGAMENTO
+  CONTESTACAO
+  TELEFONE_INVALIDO
+  REGISTRO_INTERNO
+}
+
+enum AcaoAuditoria {
+  CRIAR
+  ATUALIZAR
+  EXCLUIR
+  ALTERAR_STATUS
+  LOGIN
+}
+
+enum OrigemAuditoria {
+  API
+  SISTEMA
+  MANUAL
+}
+
+enum TipoTarefa {
+  ENVIO_BOLETO
+  REENVIO_PREVENTIVO
+  COBRANCA_5_DIAS
+  COBRANCA_10_DIAS
+  COBRANCA_30_DIAS
+  NEGATIVACAO
+  LIGACAO_CONSULTIVA
+  CONFERIR_DDA
+  EMITIR_NOTA
+}
+
+enum StatusTarefa {
+  ABERTA
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+  ATRASADA
+}
+
+model Usuario {
+  id           String        @id @default(cuid())
+  nome         String
+  email        String        @unique
+  senhaHash    String?
+  perfil       PerfilUsuario @default(OPERADOR)
+  permissoes   String[]      @default([])
+  ativo        Boolean       @default(true)
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+
+  cobrancasResponsaveis Cobranca[]
+  interacoes            Interacao[]
+  auditorias            Auditoria[]
+  tarefas               Tarefa[]
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id                     String      @id @default(cuid())
+  nome                   String
+  tipoCliente            TipoCliente
+  documento              String      @unique
+  responsavelFinanceiro  String
+  email                  String
+  telefone               String
+  whatsapp               String?
+  endereco               String?
+  observacoes            String?
+  statusAtivo            Boolean     @default(true)
+  criadoEm               DateTime    @default(now())
+  atualizadoEm           DateTime    @updatedAt
+
+  cobrancas  Cobranca[]
+  interacoes Interacao[]
+  tarefas    Tarefa[]
+
+  @@index([nome])
+  @@index([email])
+  @@index([telefone])
+  @@map("clientes")
+}
+
+model Cobranca {
+  id                      String          @id @default(cuid())
+  clienteId               String
+  tipoCobranca            TipoCobranca
+  valorTotal              Decimal         @db.Decimal(12, 2)
+  statusCobranca          StatusCobranca  @default(EMITIDA)
+  dataEmissao             DateTime        @default(now())
+  dataVencimentoPrincipal DateTime
+  responsavelAtualId      String?
+  proximaAcao             String?
+  dataProximaAcao         DateTime?
+  observacoes             String?
+  criadoEm                DateTime        @default(now())
+  atualizadoEm            DateTime        @updatedAt
+
+  cliente          Cliente     @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  responsavelAtual Usuario?    @relation(fields: [responsavelAtualId], references: [id], onDelete: SetNull)
+  parcelas         Parcela[]
+  boletos          Boleto[]
+  interacoes       Interacao[]
+  tarefas          Tarefa[]
+
+  @@index([clienteId])
+  @@index([statusCobranca])
+  @@index([dataVencimentoPrincipal])
+  @@map("cobrancas")
+}
+
+model Parcela {
+  id              String         @id @default(cuid())
+  cobrancaId      String
+  numeroParcela   Int
+  valor           Decimal        @db.Decimal(12, 2)
+  vencimento      DateTime
+  status          StatusParcela  @default(PENDENTE)
+  dataEnvio       DateTime?
+  dataReenvio     DateTime?
+  dataPagamento   DateTime?
+  observacoes     String?
+
+  cobranca   Cobranca    @relation(fields: [cobrancaId], references: [id], onDelete: Cascade)
+  boleto     Boleto?
+  interacoes Interacao[]
+
+  @@unique([cobrancaId, numeroParcela])
+  @@index([vencimento])
+  @@index([status])
+  @@map("parcelas")
+}
+
+model Boleto {
+  id                        String        @id @default(cuid())
+  parcelaId                 String?       @unique
+  cobrancaId                String?
+  codigoBarras              String
+  linhaDigitavel            String
+  valor                     Decimal       @db.Decimal(12, 2)
+  vencimento                DateTime
+  status                    StatusBoleto  @default(EMITIDO)
+  dataEmissao               DateTime      @default(now())
+  dataEnvio                 DateTime?
+  confirmacaoLeitura        Boolean       @default(false)
+  confirmacaoRecebimento    Boolean       @default(false)
+  pdfUrl                    String?
+  observacoes               String?
+
+  parcela  Parcela?  @relation(fields: [parcelaId], references: [id], onDelete: SetNull)
+  cobranca Cobranca? @relation(fields: [cobrancaId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([vencimento])
+  @@map("boletos")
+}
+
+model Interacao {
+  id              String              @id @default(cuid())
+  clienteId       String
+  cobrancaId      String?
+  parcelaId       String?
+  canal           CanalInteracao
+  resultado       ResultadoInteracao
+  responsavelId   String?
+  responsavelNome String
+  dataHora        DateTime            @default(now())
+  observacoes     String?
+
+  cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  cobranca    Cobranca? @relation(fields: [cobrancaId], references: [id], onDelete: Cascade)
+  parcela     Parcela?  @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  responsavel Usuario?  @relation(fields: [responsavelId], references: [id], onDelete: SetNull)
+
+  @@index([clienteId, dataHora])
+  @@index([cobrancaId])
+  @@map("interacoes")
+}
+
+model Auditoria {
+  id          String          @id @default(cuid())
+  entidade    String
+  entidadeId  String
+  acao        AcaoAuditoria
+  antes       Json?
+  depois      Json?
+  usuarioId   String?
+  usuarioNome String
+  dataHora    DateTime        @default(now())
+  ip          String?
+  origem      OrigemAuditoria @default(API)
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([entidade, entidadeId])
+  @@index([dataHora])
+  @@map("auditorias")
+}
+
+model Tarefa {
+  id              String        @id @default(cuid())
+  clienteId       String
+  cobrancaId      String?
+  tipo            TipoTarefa
+  descricao       String
+  dataAgendada    DateTime
+  status          StatusTarefa  @default(ABERTA)
+  responsavelId   String?
+  responsavelNome String
+  concluidaEm     DateTime?
+  criadoEm        DateTime      @default(now())
+  atualizadoEm    DateTime      @updatedAt
+
+  cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  cobranca    Cobranca? @relation(fields: [cobrancaId], references: [id], onDelete: Cascade)
+  responsavel Usuario?  @relation(fields: [responsavelId], references: [id], onDelete: SetNull)
+
+  @@index([dataAgendada])
+  @@index([status])
+  @@map("tarefas")
+}
