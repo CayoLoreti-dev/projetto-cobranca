@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\Boletos\Tables;
 
+use App\Models\Boleto;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -16,51 +19,92 @@ class BoletosTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('vencimento')
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID'),
-                TextColumn::make('parcela_id'),
-                TextColumn::make('cobranca_id'),
-                TextColumn::make('pdf_file_id'),
-                TextColumn::make('linha_digitavel')
+                TextColumn::make('cobranca.cliente.nome')
+                    ->label('Cliente')
                     ->searchable(),
-                TextColumn::make('codigo_barras')
+                TextColumn::make('cobranca.codigo')
+                    ->label('Cobrança')
                     ->searchable(),
-                TextColumn::make('valor')
+                TextColumn::make('parcela.numero')
+                    ->label('Parcela')
                     ->numeric()
+                    ->placeholder('-'),
+                TextColumn::make('linha_digitavel')
+                    ->label('Linha digitável')
+                    ->searchable()
+                    ->limit(28)
+                    ->placeholder('-'),
+                TextColumn::make('valor')
+                    ->label('Valor')
+                    ->money('BRL')
                     ->sortable(),
                 TextColumn::make('vencimento')
+                    ->label('Vencimento')
                     ->date()
                     ->sortable(),
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->searchable(),
+                IconColumn::make('pdf_path')
+                    ->label('PDF')
+                    ->boolean()
+                    ->getStateUsing(fn (Boleto $record): bool => filled($record->pdf_path))
+                    ->trueIcon(Heroicon::PaperClip)
+                    ->falseIcon(Heroicon::XMark)
+                    ->trueColor('success')
+                    ->falseColor('gray'),
+                TextColumn::make('pdf_original_name')
+                    ->label('Arquivo')
+                    ->searchable()
+                    ->limit(28)
+                    ->placeholder('-'),
                 TextColumn::make('gerado_em')
+                    ->label('Gerado em')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('enviado_em')
+                    ->label('Enviado em')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('lido_em')
+                    ->label('Lido em')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('recebido_em')
+                    ->label('Recebido em')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('pago_em')
+                    ->label('Pago em')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('pdf_url')
-                    ->searchable(),
+                    ->label('URL externa')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
+                    ->label('Criado em')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Atualizado em')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
+                    ->label('Excluído em')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

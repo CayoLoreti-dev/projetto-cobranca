@@ -11,11 +11,11 @@ use App\Filament\Resources\PopFinanceiroChecklists\Schemas\PopFinanceiroChecklis
 use App\Filament\Resources\PopFinanceiroChecklists\Tables\PopFinanceiroChecklistsTable;
 use App\Models\PopFinanceiroChecklist;
 use BackedEnum;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PopFinanceiroChecklistResource extends Resource
 {
@@ -55,6 +55,7 @@ class PopFinanceiroChecklistResource extends Resource
                 'cliente',
                 'cobranca',
                 'parcela',
+                'boleto',
                 'responsavel',
             ]);
     }

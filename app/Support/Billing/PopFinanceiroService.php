@@ -239,6 +239,9 @@ class PopFinanceiroService
                 [
                     'responsavel_id' => $parcela->cobranca?->responsavel_id,
                     'status' => SerasaStatus::Pendente->value,
+                    'documento_devedor' => $parcela->cobranca?->cliente?->documento,
+                    'valor_negativado' => $parcela->valor,
+                    'data_limite_regularizacao' => $referenceDate->copy()->addDays(10)->toDateString(),
                     'agendado_para' => $referenceDate->copy()->endOfDay(),
                     'observacoes' => 'Skeleton POP: notificação SERASA preparada, sem integração externa automática.',
                     'metadata' => ['skeleton_only' => true],
@@ -259,6 +262,9 @@ class PopFinanceiroService
                 [
                     'responsavel_id' => $parcela->cobranca?->responsavel_id,
                     'status' => SerasaStatus::Pendente->value,
+                    'documento_devedor' => $parcela->cobranca?->cliente?->documento,
+                    'valor_negativado' => $parcela->valor,
+                    'data_limite_regularizacao' => $referenceDate->toDateString(),
                     'agendado_para' => $referenceDate->copy()->endOfDay(),
                     'observacoes' => 'Skeleton POP: negativação formal preparada para execução manual.',
                     'metadata' => ['skeleton_only' => true],

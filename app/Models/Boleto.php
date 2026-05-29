@@ -13,13 +13,15 @@ class Boleto extends Model
 {
     /** @use HasFactory<BoletoFactory> */
     use HasFactory;
+
     use SoftDeletes;
     use UsesUuid;
 
     protected $fillable = [
         'parcela_id', 'cobranca_id', 'pdf_file_id', 'linha_digitavel', 'codigo_barras',
         'valor', 'vencimento', 'status', 'gerado_em', 'enviado_em', 'lido_em',
-        'recebido_em', 'pago_em', 'pdf_url', 'observacoes', 'metadata',
+        'recebido_em', 'pago_em', 'pdf_url', 'pdf_path', 'pdf_original_name',
+        'observacoes', 'metadata',
     ];
 
     protected function casts(): array

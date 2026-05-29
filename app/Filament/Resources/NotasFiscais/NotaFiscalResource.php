@@ -53,7 +53,7 @@ class NotaFiscalResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with([
-                'cobranca',
+                'cobranca.cliente',
                 'boleto',
             ]);
     }

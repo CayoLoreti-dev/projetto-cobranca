@@ -16,7 +16,8 @@ class NotaFiscal extends Model
 
     protected $fillable = [
         'cobranca_id', 'boleto_id', 'numero', 'serie', 'status', 'valor',
-        'emitida_em', 'competencia', 'observacoes', 'metadata',
+        'emitida_em', 'competencia', 'pdf_path', 'pdf_original_name',
+        'observacoes', 'metadata',
     ];
 
     protected function casts(): array

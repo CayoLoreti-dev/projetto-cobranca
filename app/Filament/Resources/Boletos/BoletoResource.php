@@ -49,6 +49,15 @@ class BoletoResource extends Resource
         return BoletosTable::configure($table);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'cobranca.cliente',
+                'parcela',
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
