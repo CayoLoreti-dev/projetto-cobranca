@@ -1,0 +1,110 @@
+{
+    "uri": "/__debug_n_plus_one_eager",
+    "timestamp": "2026-05-29 20:01:50",
+    "queries": 2,
+    "queries_time_ms": 56.18,
+    "statements": [
+        {
+            "sql": "select * from \"clientes\" where \"clientes\".\"deleted_at\" is null limit 20",
+            "bindings": [],
+            "time": 37.92,
+            "connection": "pgsql",
+            "backtrace": [
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Events\\Dispatcher.php",
+                    "line": 499,
+                    "function": "{closure:App\\Providers\\AppServiceProvider::boot():70}",
+                    "class": "App\\Providers\\AppServiceProvider",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Events\\Dispatcher.php",
+                    "line": 329,
+                    "function": "{closure:Illuminate\\Events\\Dispatcher::makeListener():494}",
+                    "class": "Illuminate\\Events\\Dispatcher",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Events\\Dispatcher.php",
+                    "line": 309,
+                    "function": "invokeListeners",
+                    "class": "Illuminate\\Events\\Dispatcher",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+                    "line": 1127,
+                    "function": "dispatch",
+                    "class": "Illuminate\\Events\\Dispatcher",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+                    "line": 896,
+                    "function": "event",
+                    "class": "Illuminate\\Database\\Connection",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+                    "line": 807,
+                    "function": "logQuery",
+                    "class": "Illuminate\\Database\\Connection",
+                    "type": "->"
+                }
+            ]
+        },
+        {
+            "sql": "select * from \"cobrancas\" where \"cobrancas\".\"cliente_id\" in (?) and \"cobrancas\".\"deleted_at\" is null",
+            "bindings": [
+                "892d7c3c-294f-4734-9788-07d853e265fc"
+            ],
+            "time": 18.26,
+            "connection": "pgsql",
+            "backtrace": [
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Events\\Dispatcher.php",
+                    "line": 499,
+                    "function": "{closure:App\\Providers\\AppServiceProvider::boot():70}",
+                    "class": "App\\Providers\\AppServiceProvider",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Events\\Dispatcher.php",
+                    "line": 329,
+                    "function": "{closure:Illuminate\\Events\\Dispatcher::makeListener():494}",
+                    "class": "Illuminate\\Events\\Dispatcher",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Events\\Dispatcher.php",
+                    "line": 309,
+                    "function": "invokeListeners",
+                    "class": "Illuminate\\Events\\Dispatcher",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+                    "line": 1127,
+                    "function": "dispatch",
+                    "class": "Illuminate\\Events\\Dispatcher",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+                    "line": 896,
+                    "function": "event",
+                    "class": "Illuminate\\Database\\Connection",
+                    "type": "->"
+                },
+                {
+                    "file": "C:\\Users\\OPERADOR\\Downloads\\projetto-cobranca-cobranca-platform\\projetto-cobranca-cobranca-platform\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php",
+                    "line": 807,
+                    "function": "logQuery",
+                    "class": "Illuminate\\Database\\Connection",
+                    "type": "->"
+                }
+            ]
+        }
+    ]
+}

@@ -60,6 +60,88 @@ class AppServiceProvider extends ServiceProvider
         ] as $model) {
             $model::observe(AuditableObserver::class);
         }
+
+        // In local/debug, attach a DB listener to collect query stats per request
+        if (app()->environment('local') || config('app.debug')) {
+            $queries = 0;
+            $time = 0.0;
+            $collected = [];
+
+            DB::listen(function ($query) use (&$queries, &$time, &$collected) {
+                $queries++;
+                $time += $query->time ?? 0;
+
+                // collect a filtered backtrace focused on application files (app/, routes/, resources/, database/)
+                $raw = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 50);
+                $filtered = [];
+                $appPaths = [
+                    base_path('app'),
+                    base_path('routes'),
+                    base_path('resources'),
+                    base_path('database'),
+                ];
+
+                foreach ($raw as $frame) {
+                    if (empty($frame['file'])) {
+                        continue;
+                    }
+
+                    foreach ($appPaths as $p) {
+                        if (str_contains($frame['file'], $p)) {
+                            $filtered[] = [
+                                'file' => $frame['file'] ?? null,
+                                'line' => $frame['line'] ?? null,
+                                'function' => $frame['function'] ?? null,
+                                'class' => $frame['class'] ?? null,
+                                'type' => $frame['type'] ?? null,
+                            ];
+                            break;
+                        }
+                    }
+
+                    if (count($filtered) >= 8) {
+                        break;
+                    }
+                }
+
+                $collected[] = [
+                    'sql' => $query->sql ?? '',
+                    'bindings' => $query->bindings ?? [],
+                    'time' => $query->time ?? 0,
+                    'connection' => $query->connectionName ?? null,
+                    'backtrace' => $filtered,
+                ];
+            });
+
+            app()->terminating(function () use (&$queries, &$time, &$collected) {
+                try {
+                    // legacy summary
+                    \Illuminate\Support\Facades\Log::channel('single')->info('QueryStats', [
+                        'uri' => request()?->getPathInfo(),
+                        'queries' => $queries,
+                        'queries_time_ms' => round($time, 2),
+                    ]);
+
+                    // write detailed per-request queries to storage for offline analysis
+                    $dir = storage_path('debug_queries');
+                    if (!is_dir($dir)) {
+                        @mkdir($dir, 0775, true);
+                    }
+                    $id = date('Ymd_His') . '_' . substr(sha1(uniqid('', true)), 0, 8);
+                    $file = $dir . DIRECTORY_SEPARATOR . $id . '.json';
+                    $payload = [
+                        'uri' => request()?->getPathInfo(),
+                        'timestamp' => now()->toDateTimeString(),
+                        'queries' => $queries,
+                        'queries_time_ms' => round($time, 2),
+                        'statements' => $collected,
+                    ];
+                    @file_put_contents($file, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                } catch (\Throwable $e) {
+                    // ignore logging errors in terminating
+                }
+            });
+        }
     }
 
     private function configureDestructiveCommandProtection(): void
