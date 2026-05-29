@@ -29,3 +29,13 @@ SET cobranca.restore_in_progress = 'on';
 ```
 
 That bypass is intentionally session-local. It is meant for a tightly controlled restore flow, not for daily maintenance.
+
+## Read-only DBeaver user
+
+Create a read-only user for visual inspection tools:
+
+```bash
+psql "$DATABASE_URL" -f database/protection/create_readonly_user.sql
+```
+
+Use that role in DBeaver instead of a superuser or the application write role.

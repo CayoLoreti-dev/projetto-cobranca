@@ -37,6 +37,20 @@ A aplicacao deve conectar com usuario de privilegio minimo:
 - sem permissao para desabilitar triggers/event triggers;
 - com acesso apenas ao banco e schema necessarios.
 
+Ferramentas visuais como DBeaver devem usar um usuario separado e somente leitura. O script de referencia fica em `database/protection/create_readonly_user.sql`.
+
+## Migrations
+
+Migrations sao o historico oficial da estrutura do banco. Toda mudanca estrutural deve virar migration ou patch SQL versionado.
+
+Em producao, o comando permitido para evoluir schema e:
+
+```bash
+php artisan migrate --force
+```
+
+Nunca use `migrate:fresh` como solucao para erro de schema em ambiente com dados reais.
+
 ## Backups e Restore
 
 Backup em nuvem e Object Lock dependem de infraestrutura externa e devem ser configurados fora do codigo da aplicacao.

@@ -199,6 +199,7 @@ Para manter o projeto como referencia didatica, consulte:
 
 - `docs/guia-de-estudo.md` — resumo tecnico do que existe hoje, o que foi implementado e por que certas escolhas foram feitas.
 - `docs/diario-de-estudo.md` — trilha das mudancas recentes, incluindo POP Financeiro, permissões, seeds e pontos de atenção.
+- `docs/acesso-ao-banco.md` — guia pratico para DBeaver, migrations e comandos seguros de banco.
 
 ## Performance local
 
