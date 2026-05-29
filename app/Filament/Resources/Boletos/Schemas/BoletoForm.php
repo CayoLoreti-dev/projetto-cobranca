@@ -16,11 +16,16 @@ class BoletoForm
     {
         return $schema
             ->components([
-                TextInput::make('parcela_id'),
-                TextInput::make('cobranca_id'),
-                TextInput::make('pdf_file_id'),
-                TextInput::make('linha_digitavel'),
-                TextInput::make('codigo_barras'),
+                TextInput::make('parcela_id')
+                    ->rules(['nullable', 'exists:parcelas,id']),
+                TextInput::make('cobranca_id')
+                    ->rules(['nullable', 'exists:cobrancas,id']),
+                TextInput::make('pdf_file_id')
+                    ->rules(['nullable', 'exists:arquivos,id']),
+                TextInput::make('linha_digitavel')
+                    ->maxLength(255),
+                TextInput::make('codigo_barras')
+                    ->maxLength(255),
                 TextInput::make('valor')
                     ->required()
                     ->numeric(),
@@ -38,8 +43,10 @@ class BoletoForm
                 TextInput::make('pdf_url')
                     ->url(),
                 Textarea::make('observacoes')
-                    ->columnSpanFull(),
-                TextInput::make('metadata'),
+                    ->columnSpanFull()
+                    ->maxLength(2000),
+                TextInput::make('metadata')
+                    ->rules(['nullable', 'json']),
             ]);
     }
 }

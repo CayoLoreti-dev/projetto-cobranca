@@ -12,6 +12,8 @@ class NotaFiscal extends Model
     use SoftDeletes;
     use UsesUuid;
 
+    protected $table = 'notas_fiscais';
+
     protected $fillable = [
         'cobranca_id', 'boleto_id', 'numero', 'serie', 'status', 'valor',
         'emitida_em', 'competencia', 'observacoes', 'metadata',

@@ -21,7 +21,8 @@ class CobrancaForm
                     ->label('Cliente')
                     ->relationship('cliente', 'nome')
                     ->searchable()
-                    ->required(),
+                    ->required()
+                    ->rules(['required', 'exists:clientes,id']),
                 TextInput::make('codigo')
                     ->label('Código')
                     ->required(),
@@ -62,14 +63,17 @@ class CobrancaForm
                     ->default(2),
                 Textarea::make('proxima_acao')
                     ->label('Próxima ação')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(255),
                 DatePicker::make('data_proxima_acao')
                     ->label('Próxima ação em'),
                 Textarea::make('observacoes')
                     ->label('Observações')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(2000),
                 TextInput::make('metadata')
-                    ->label('Metadados'),
+                    ->label('Metadados')
+                    ->rules(['nullable', 'json']),
                 DateTimePicker::make('archived_at')
                     ->label('Arquivado em'),
             ]);

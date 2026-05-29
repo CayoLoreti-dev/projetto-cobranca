@@ -49,6 +49,17 @@ class CobrancaResource extends Resource
         return CobrancasTable::configure($table);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'cliente',
+                'responsavel',
+                'createdBy',
+                'updatedBy',
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [

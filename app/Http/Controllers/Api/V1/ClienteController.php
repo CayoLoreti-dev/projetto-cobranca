@@ -14,9 +14,15 @@ class ClienteController extends Controller
         $this->authorize('viewAny', Cliente::class);
 
         $clientes = Cliente::query()
-            ->when(request('busca'), fn ($query, $busca) => $query->where('nome', 'ilike', "%{$busca}%")->orWhere('documento', 'ilike', "%{$busca}%"))
-            ->latest()
-            ->paginate(request('per_page', 20));
+            ->when(request('busca'), function ($query, $busca) {
+                $query->where(function ($subQuery) use ($busca) {
+                    $subQuery->where('nome', 'ilike', "%{$busca}%")
+                        ->orWhere('documento', 'ilike', "%{$busca}%");
+                });
+            })
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->cursorPaginate(request('per_page', 20));
 
         return ClienteResource::collection($clientes);
     }

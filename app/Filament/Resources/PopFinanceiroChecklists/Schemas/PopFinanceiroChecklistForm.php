@@ -18,12 +18,17 @@ class PopFinanceiroChecklistForm
             ->components([
                 DatePicker::make('reference_date')
                     ->required(),
-                TextInput::make('cliente_id'),
-                TextInput::make('cobranca_id'),
-                TextInput::make('parcela_id'),
-                TextInput::make('boleto_id'),
+                TextInput::make('cliente_id')
+                    ->rules(['nullable', 'exists:clientes,id']),
+                TextInput::make('cobranca_id')
+                    ->rules(['nullable', 'exists:cobrancas,id']),
+                TextInput::make('parcela_id')
+                    ->rules(['nullable', 'exists:parcelas,id']),
+                TextInput::make('boleto_id')
+                    ->rules(['nullable', 'exists:boletos,id']),
                 TextInput::make('assigned_to_id')
-                    ->numeric(),
+                    ->numeric()
+                    ->rules(['nullable', 'exists:users,id']),
                 TextInput::make('etapa')
                     ->required(),
                 Select::make('status')
@@ -34,13 +39,18 @@ class PopFinanceiroChecklistForm
                 TextInput::make('escalonamento_nivel')
                     ->placeholder('VENDEDOR / LARISSA / EDIVALDO / SERASA'),
                 TextInput::make('titulo')
-                    ->required(),
+                    ->required()
+                    ->maxLength(255),
                 Textarea::make('descricao')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(2000),
                 DateTimePicker::make('sla_limite_em'),
                 DateTimePicker::make('concluido_em'),
                 Textarea::make('metadata')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(2000)
+                    ->helperText('JSON string allowed')
+                    ->rules(['nullable', 'json']),
             ]);
     }
 }

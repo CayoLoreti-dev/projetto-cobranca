@@ -11,6 +11,7 @@ use App\Filament\Resources\PopFinanceiroChecklists\Schemas\PopFinanceiroChecklis
 use App\Filament\Resources\PopFinanceiroChecklists\Tables\PopFinanceiroChecklistsTable;
 use App\Models\PopFinanceiroChecklist;
 use BackedEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -45,6 +46,17 @@ class PopFinanceiroChecklistResource extends Resource
     public static function table(Table $table): Table
     {
         return PopFinanceiroChecklistsTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'cliente',
+                'cobranca',
+                'parcela',
+                'responsavel',
+            ]);
     }
 
     public static function getRelations(): array

@@ -15,7 +15,7 @@ class AuthTokenController extends Controller
         $data = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
-            'device_name' => ['required', 'string'],
+            'device_name' => ['required', 'string', 'max:100'],
         ]);
 
         $user = User::where('email', $data['email'])->first();

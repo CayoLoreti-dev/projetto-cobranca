@@ -18,8 +18,9 @@ class CobrancaController extends Controller
             ->with('cliente')
             ->when(request('status'), fn ($query, $status) => $query->where('status', $status))
             ->when(request('cliente_id'), fn ($query, $clienteId) => $query->where('cliente_id', $clienteId))
-            ->latest()
-            ->paginate(request('per_page', 20));
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->cursorPaginate(request('per_page', 20));
 
         return CobrancaResource::collection($cobrancas);
     }

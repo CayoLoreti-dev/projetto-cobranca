@@ -31,6 +31,10 @@ class UserInfolist
                     ->label('Atualizado em')
                     ->dateTime()
                     ->placeholder('-'),
+                TextEntry::make('deleted_at')
+                    ->label('Excluido em')
+                    ->dateTime()
+                    ->placeholder('-'),
             ]);
     }
 }

@@ -36,9 +36,11 @@ class BoletoDdaControleForm
                     ->label('Verificado em'),
                 Textarea::make('ultimo_retorno')
                     ->label('Último retorno')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(2000),
                 TextInput::make('metadata')
-                    ->label('Metadados'),
+                    ->label('Metadados')
+                    ->rules(['nullable', 'json']),
             ]);
     }
 }

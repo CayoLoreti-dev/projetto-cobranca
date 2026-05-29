@@ -46,7 +46,7 @@ Sistema greenfield em Laravel para gestao de cobrancas, com painel administrativ
 O projeto novo esta isolado em:
 
 ```powershell
-c:\Users\T-GAMER\Downloads\cayo\projetto-cobranca-main\cobranca-platform
+c:\Users\OPERADOR\Downloads\projetto-cobranca-cobranca-platform\projetto-cobranca-cobranca-platform
 ```
 
 Servidor local ja validado:
@@ -58,15 +58,33 @@ http://127.0.0.1:8000/admin
 Credenciais seedadas:
 
 ```text
-admin@cobranca.local / cobranca123
-financeiro@cobranca.local / cobranca123
+admin@cobranca.local / Cobranca!2026
+financeiro@cobranca.local / Cobranca!2026
 ```
+
+No primeiro acesso ao painel, o Filament pede configuracao de MFA por aplicativo autenticador.
+
+## Comeco rapido
+
+Esse eh o caminho mais curto para colocar o projeto de pe em um clone novo:
+
+```powershell
+copy .env.example .env
+New-Item -ItemType File -Force database\database.sqlite | Out-Null
+php artisan key:generate
+php artisan migrate --seed
+npm install
+npm run build
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Se preferir usar a stack completa com PostgreSQL, Redis, MinIO e Mailpit, copie `.env.docker.example` para `.env` e rode o `docker compose up -d`.
 
 ## Rodando
 
 ```powershell
 $env:Path = [Environment]::GetEnvironmentVariable('Path','User') + ';' + [Environment]::GetEnvironmentVariable('Path','Machine')
-cd c:\Users\T-GAMER\Downloads\cayo\projetto-cobranca-main\cobranca-platform
+cd c:\Users\OPERADOR\Downloads\projetto-cobranca-cobranca-platform\projetto-cobranca-cobranca-platform
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
@@ -76,6 +94,7 @@ Para uma instalacao limpa:
 composer install --ignore-platform-req=ext-pcntl --ignore-platform-req=ext-posix
 npm install
 copy .env.example .env
+New-Item -ItemType File -Force database\database.sqlite | Out-Null
 php artisan key:generate
 php artisan migrate --seed
 npm run build
@@ -95,6 +114,70 @@ php artisan horizon
 
 No ambiente local atual, `SESSION_DRIVER`, `CACHE_STORE` e `QUEUE_CONNECTION` estao em `file`/`sync` para reduzir carga no PostgreSQL durante desenvolvimento. A stack Redis/Horizon ja esta instalada e fica ativa ao usar o `.env.docker.example`.
 
+## Colocando online
+
+Para publicar o projeto em produção, o caminho mais simples e confiavel eh usar uma VPS com Ubuntu, Nginx e PHP 8.4.
+
+Use `.env.production.example` como referencia de variaveis seguras. Em produção, `APP_ENV=production` e regra inviolavel porque habilita as travas contra comandos destrutivos.
+
+### Configuracao recomendada
+
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+- `APP_URL=https://seu-dominio.com`
+- `SESSION_SECURE_COOKIE=true`
+- `SECURITY_PASSWORD_UNCOMPROMISED=true`
+- `DB_CONNECTION=pgsql`
+- `SESSION_DRIVER=redis`
+- `CACHE_STORE=redis`
+- `QUEUE_CONNECTION=redis`
+- `FILESYSTEM_DISK=s3` ou equivalente em objeto/armazenamento externo
+
+### Passos resumidos
+
+```powershell
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan storage:link
+```
+
+Depois disso, coloque o Nginx apontando para a pasta `public/`, rode o PHP-FPM e configure um worker para filas/Horizon com Supervisor.
+
+### Para ficar mais rapido em produção
+
+- use Postgres gerenciado ou em servidor dedicado;
+- use Redis para cache, sessão e filas;
+- mantenha os assets gerados com `npm run build`;
+- habilite HTTPS;
+- desative `APP_DEBUG`;
+- configure backups do banco e do storage.
+- instale as travas PostgreSQL com `database/protection/install_db_protection.sql`.
+
+### Ajustes de banco para produção
+
+Para uma base PostgreSQL em produção, aplique os índices compostos e de checksum que já estão alinhados com as migrations do projeto. Eles ajudam principalmente nas listas ordenadas e nas trilhas de auditoria.
+
+Arquivo pronto para execução manual:
+
+- `database/postgres_indexes.sql`
+
+Exemplo de execução:
+
+```powershell
+psql "$env:DATABASE_URL" -f database/postgres_indexes.sql
+```
+
+### Paginação mais robusta
+
+As listagens de API mais pesadas agora usam paginação por cursor (`cursorPaginate`) em vez de `paginate`. Isso reduz custo quando a tabela cresce bastante, porque o banco continua andando a partir do último registro visto, sem depender de `OFFSET` grande.
+
+Se quiser levar isso ainda mais longe, o próximo passo é revisar as telas do Filament que mais concentram volume e buscar uma estratégia equivalente de navegação/ordenação para listas grandes.
+
 ## Validacao
 
 ```powershell
@@ -103,11 +186,10 @@ npm run build
 php artisan route:list --except-vendor
 ```
 
-Ultima validacao executada:
+Ultima validacao executada no ambiente atual:
 
 ```text
-12 testes verdes, 37 assertions
-49 rotas de aplicacao
+24 testes verdes, 89 assertions
 build Vite concluido
 ```
 

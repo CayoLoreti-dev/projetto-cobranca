@@ -10,9 +10,13 @@ Este arquivo registra o que foi construído, o que está pronto para demonstraç
 - PostgreSQL local funcionando.
 - Painel administrativo acessível em `/admin`.
 - Login seedado:
-  - `admin@cobranca.local` / `cobranca123`
-  - `financeiro@cobranca.local` / `cobranca123`
-- Testes automatizados validados: **12 passed / 37 assertions**.
+  - `admin@cobranca.local` / `Cobranca!2026`
+  - `financeiro@cobranca.local` / `Cobranca!2026`
+- MFA por aplicativo autenticador habilitado no Filament.
+- Comandos destrutivos bloqueados em `APP_ENV=production`.
+- Script PostgreSQL em `database/protection/install_db_protection.sql` para bloquear TRUNCATE/DROP em tabelas operacionais.
+- Usuarios agora usam soft delete para preservar historico.
+- Testes automatizados validados: **24 passed / 89 assertions**.
 
 ## O que já foi implementado
 

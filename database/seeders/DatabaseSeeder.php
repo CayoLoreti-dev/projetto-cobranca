@@ -67,7 +67,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::factory()->create([
             'name' => 'Administrador',
             'email' => 'admin@cobranca.local',
-            'password' => Hash::make('cobranca123'),
+            'password' => Hash::make('Cobranca!2026'),
             'is_active' => true,
         ]);
         $admin->assignRole('ADMIN');
@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
         $financeiro = User::factory()->create([
             'name' => 'Setor Financeiro',
             'email' => 'financeiro@cobranca.local',
-            'password' => Hash::make('cobranca123'),
+            'password' => Hash::make('Cobranca!2026'),
             'is_active' => true,
         ]);
         $financeiro->assignRole('FINANCEIRO');
@@ -86,6 +86,18 @@ class DatabaseSeeder extends Seeder
             'type' => 'array',
             'value' => [-10, -5, 5, 10, 30],
             'description' => 'Dias relativos ao vencimento usados para agenda automatica.',
+            'updated_by_id' => $admin->id,
+        ]);
+
+        SystemSetting::updateOrCreate(['key' => 'db_protection.postgres'], [
+            'key' => 'db_protection.postgres',
+            'group' => 'db_protection',
+            'type' => 'array',
+            'value' => [
+                'status' => 'pending_postgres',
+                'script' => 'database/protection/install_db_protection.sql',
+            ],
+            'description' => 'Status da instalacao das travas PostgreSQL contra TRUNCATE/DROP.',
             'updated_by_id' => $admin->id,
         ]);
 

@@ -49,6 +49,15 @@ class NotaFiscalResource extends Resource
         return NotasFiscaisTable::configure($table);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'cobranca',
+                'boleto',
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [];

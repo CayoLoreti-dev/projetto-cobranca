@@ -18,30 +18,37 @@ class ClienteForm
             ->components([
                 TextInput::make('nome')
                     ->label('Nome')
-                    ->required(),
+                    ->required()
+                    ->maxLength(255),
                 Select::make('tipo')
                     ->label('Tipo')
                     ->options(ClienteTipo::class)
                     ->required(),
                 TextInput::make('documento')
                     ->label('Documento')
-                    ->required(),
+                    ->required()
+                    ->maxLength(32),
                 TextInput::make('responsavel_financeiro')
                     ->label('Responsável financeiro')
-                    ->required(),
+                    ->required()
+                    ->maxLength(255),
                 TextInput::make('email')
                     ->label('E-mail')
                     ->email()
-                    ->required(),
+                    ->required()
+                    ->maxLength(255),
                 TextInput::make('telefone')
                     ->label('Telefone')
                     ->tel()
-                    ->required(),
+                    ->required()
+                    ->maxLength(32),
                 TextInput::make('whatsapp')
-                    ->label('WhatsApp'),
+                    ->label('WhatsApp')
+                    ->maxLength(32),
                 Textarea::make('endereco')
                     ->label('Endereço')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(1000),
                 Select::make('status')
                     ->label('Status')
                     ->options(ClienteStatus::class)
@@ -49,7 +56,8 @@ class ClienteForm
                     ->required(),
                 Textarea::make('observacoes')
                     ->label('Observações')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(2000),
                 DateTimePicker::make('archived_at')
                     ->label('Arquivado em'),
             ]);

@@ -7,9 +7,9 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Forms\Components\DatePicker;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class ParcelaForm
@@ -19,7 +19,8 @@ class ParcelaForm
         return $schema
             ->components([
                 TextInput::make('cobranca_id')
-                    ->required(),
+                    ->required()
+                    ->rules(['required', 'exists:cobrancas,id']),
                 TextInput::make('numero')
                     ->required()
                     ->numeric(),
@@ -59,8 +60,10 @@ class ParcelaForm
                     ->hidden(fn (Get $get): bool => $get('status') !== 'PAGA')
                     ->dehydrated(fn (Get $get): bool => $get('status') === 'PAGA'),
                 Textarea::make('observacoes')
-                    ->columnSpanFull(),
-                TextInput::make('metadata'),
+                    ->columnSpanFull()
+                    ->maxLength(2000),
+                TextInput::make('metadata')
+                    ->rules(['nullable', 'json']),
             ]);
     }
 }

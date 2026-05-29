@@ -13,8 +13,15 @@ class MinhaDemandaController extends Controller
             ->where('assigned_to_id', auth()->id())
             ->orderByDesc('prioridade')
             ->orderBy('vence_em')
-            ->paginate(request('per_page', 20));
+            ->orderByDesc('id')
+            ->cursorPaginate(request('per_page', 20));
 
-        return response()->json(['data' => $tarefas->items(), 'meta' => ['total' => $tarefas->total()]]);
+        return response()->json([
+            'data' => $tarefas->items(),
+            'meta' => [
+                'next_cursor' => optional($tarefas->nextCursor())->encode(),
+                'prev_cursor' => optional($tarefas->previousCursor())->encode(),
+            ],
+        ]);
     }
 }

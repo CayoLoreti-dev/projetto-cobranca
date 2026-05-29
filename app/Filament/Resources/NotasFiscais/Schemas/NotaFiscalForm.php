@@ -20,12 +20,14 @@ class NotaFiscalForm
                     ->label('Cobrança')
                     ->relationship('cobranca', 'codigo')
                     ->searchable()
-                    ->required(),
+                    ->required()
+                    ->rules(['required', 'exists:cobrancas,id']),
                 Select::make('boleto_id')
                     ->label('Boleto')
                     ->relationship('boleto', 'linha_digitavel')
                     ->searchable()
-                    ->placeholder('Opcional'),
+                    ->placeholder('Opcional')
+                    ->rules(['nullable', 'exists:boletos,id']),
                 TextInput::make('numero')
                     ->label('Número')
                     ->maxLength(255),
@@ -47,9 +49,11 @@ class NotaFiscalForm
                     ->label('Competência'),
                 Textarea::make('observacoes')
                     ->label('Observações')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(2000),
                 TextInput::make('metadata')
-                    ->label('Metadados'),
+                    ->label('Metadados')
+                    ->rules(['nullable', 'json']),
             ]);
     }
 }

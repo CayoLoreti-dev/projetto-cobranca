@@ -19,7 +19,8 @@ class SerasaOcorrenciaForm
                     ->label('Cobrança')
                     ->relationship('cobranca', 'codigo')
                     ->searchable()
-                    ->required(),
+                    ->required()
+                    ->rules(['required', 'exists:cobrancas,id']),
                 Select::make('responsavel_id')
                     ->label('Responsável')
                     ->relationship('responsavel', 'name')
@@ -40,10 +41,13 @@ class SerasaOcorrenciaForm
                     ->label('Executado em'),
                 Textarea::make('observacoes')
                     ->label('Observações')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(2000),
                 Textarea::make('metadata')
                     ->label('Metadados')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxLength(2000)
+                    ->rules(['nullable', 'json']),
             ]);
     }
 }
