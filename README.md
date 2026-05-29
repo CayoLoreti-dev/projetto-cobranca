@@ -1,140 +1,142 @@
-# Sistema interno de cobranças - AP Vistoria Predial
+# Cobranca Platform
 
-Projeto educativo e operacional para cadastro de clientes, cobranças, parcelas, boletos, histórico, agenda, relatórios e auditoria.
+Sistema greenfield em Laravel para gestao de cobrancas, com painel administrativo, APIs JSON, RBAC, auditoria, eventos de dominio, filas e base preparada para PostgreSQL/Redis/object storage.
 
 ## Stack
 
-- Next.js App Router + TypeScript
-- Tailwind CSS
-- Prisma ORM 7 + PostgreSQL
-- Zod para validação
-- Auth.js/NextAuth com login por credenciais
-- React Hook Form nos formulários
-- TanStack Query nas mutações de front-end
+- Laravel 13, PHP 8.4 local
+- PostgreSQL transacional
+- Filament para painel admin
+- Spatie Laravel Permission para RBAC
+- Sanctum para API tokens
+- Laravel Queues e Horizon prontos para Redis
+- Scout instalado para busca futura com engine de banco no inicio
+- Vite/Tailwind para assets
 
-## Como rodar
+## Estrutura
 
-1. Instale dependências:
+- `app/Models`: entidades principais do dominio
+- `app/Enums`: status e tipos fechados do dominio
+- `app/Actions`: casos de uso e regras de negocio
+- `app/Support/Audit`: trilha de auditoria e eventos imutaveis
+- `app/Support/Billing`: regras de vencimento, atraso e dados de boleto
+- `app/Support/Reports`: consultas de relatorios fora dos controllers
+- `app/Jobs`: tarefas assincronas
+- `app/Observers`: auditoria automatica de mudancas relevantes
+- `app/Policies`: autorizacao por permissao
+- `app/Filament/Resources`: painel administrativo
+- `app/Http/Controllers/Api/V1`: API versionada
+- `tests`: testes de regras, permissoes, relatorios e fluxos criticos
 
-```bash
+## Modulos Entregues
+
+- Usuarios, papeis e permissoes: `ADMIN`, `FINANCEIRO`, `OPERADOR`, `LEITURA`
+- Clientes
+- Cobrancas
+- Parcelas, baixa de pagamento e recalculo da cobranca
+- Boletos com metadados e job de geracao demonstrativo
+- Tarefas/minhas demandas
+- Interacoes por canal
+- Configuracoes do sistema
+- Auditoria dedicada e eventos por entidade
+- Relatorios API: resumo, inadimplencia, previsao de recebimento, produtividade e evolucao temporal
+
+## Ambiente Local Atual
+
+O projeto novo esta isolado em:
+
+```powershell
+c:\Users\T-GAMER\Downloads\cayo\projetto-cobranca-main\cobranca-platform
+```
+
+Servidor local ja validado:
+
+```text
+http://127.0.0.1:8000/admin
+```
+
+Credenciais seedadas:
+
+```text
+admin@cobranca.local / cobranca123
+financeiro@cobranca.local / cobranca123
+```
+
+## Rodando
+
+```powershell
+$env:Path = [Environment]::GetEnvironmentVariable('Path','User') + ';' + [Environment]::GetEnvironmentVariable('Path','Machine')
+cd c:\Users\T-GAMER\Downloads\cayo\projetto-cobranca-main\cobranca-platform
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Para uma instalacao limpa:
+
+```powershell
+composer install --ignore-platform-req=ext-pcntl --ignore-platform-req=ext-posix
 npm install
-```
-
-2. Configure ambiente:
-
-```bash
 copy .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+npm run build
 ```
 
-3. Suba um PostgreSQL. Se você tiver Docker:
+No Windows, Horizon pode exigir `--ignore-platform-req=ext-pcntl --ignore-platform-req=ext-posix` no Composer. Em Linux/produção, use as extensoes normalmente.
 
-```bash
+## Infra Completa Recomendada
+
+O arquivo `docker-compose.yml` sobe PostgreSQL, Redis, MinIO e Mailpit. Para usar essa stack, copie `.env.docker.example` para `.env`, ajuste segredos e rode:
+
+```powershell
 docker compose up -d
+php artisan migrate --seed
+php artisan horizon
 ```
 
-4. Crie as tabelas e dados iniciais:
+No ambiente local atual, `SESSION_DRIVER`, `CACHE_STORE` e `QUEUE_CONNECTION` estao em `file`/`sync` para reduzir carga no PostgreSQL durante desenvolvimento. A stack Redis/Horizon ja esta instalada e fica ativa ao usar o `.env.docker.example`.
 
-```bash
-npm run db:push
-npm run db:seed
+## Validacao
+
+```powershell
+php artisan test
+npm run build
+php artisan route:list --except-vendor
 ```
 
-5. Rode o app:
+Ultima validacao executada:
 
-```bash
-npm run dev
+```text
+12 testes verdes, 37 assertions
+49 rotas de aplicacao
+build Vite concluido
 ```
 
-Login de desenvolvimento criado pela seed:
+## Material de estudo
 
-- E-mail: `financeiro@apvistoria.local`
-- Senha: `apvistoria123`
+Para manter o projeto como referencia didatica, consulte:
 
-Por padrão `AUTH_REQUIRED=false`, então a navegação interna fica aberta para facilitar estudo mesmo sem banco local. Para exigir login, altere para `AUTH_REQUIRED=true` depois de rodar o banco e a seed.
+- `docs/guia-de-estudo.md` — resumo tecnico do que existe hoje, o que foi implementado e por que certas escolhas foram feitas.
+- `docs/diario-de-estudo.md` — trilha das mudancas recentes, incluindo POP Financeiro, permissões, seeds e pontos de atenção.
 
-## Scripts
+## Performance local
 
-- `npm run dev`: servidor local.
-- `npm run build`: gera Prisma Client e valida build Next.
-- `npm run lint`: valida padrões de código.
-- `npm run typecheck`: valida TypeScript.
-- `npm run prisma:generate`: gera o client tipado do Prisma.
-- `npm run db:push`: cria/atualiza tabelas no PostgreSQL.
-- `npm run db:seed`: recria dados de desenvolvimento.
-- `npm run db:studio`: abre painel visual do Prisma.
+Se a troca de páginas parecer lenta no navegador, os motivos mais comuns neste ambiente sao:
 
-## Organização
+- modo `local` com `debug` habilitado;
+- cada navegação do Filament faz novas consultas ao banco;
+- sessão, cache e filas estão em `file`/`sync` no modo local para aliviar o PostgreSQL;
+- banco e app rodam localmente, então qualquer travada do PostgreSQL afeta a UI imediatamente;
+- observers, auditoria e permissões adicionam trabalho a cada requisição.
 
-- `prisma/schema.prisma`: modelos do banco. Em Java, pense como entidades JPA.
-- `prisma/seed.ts`: dados iniciais. Parecido com `data.sql` ou um `CommandLineRunner`.
-- `src/app`: rotas, páginas e APIs do Next.js.
-- `src/app/api`: back-end HTTP. Parecido com controllers do Spring.
-- `src/components`: componentes reutilizáveis de interface.
-- `src/components/forms`: formulários com React Hook Form + Zod.
-- `src/lib/validations.ts`: schemas Zod. Parecido com DTOs com Bean Validation.
-- `src/lib/server/rules.ts`: regras de negócio de cobrança.
-- `src/lib/server/prisma.ts`: conexão com banco via Prisma.
-- `src/lib/server/audit.ts`: grava auditoria.
-- `src/lib/server/queries.ts`: leituras usadas pelas telas.
-- `src/lib/constants.ts`: labels e textos de enums.
+Isso não é necessariamente um bug. Pode ser só o custo normal de um sistema com muita consulta e auditoria em ambiente de desenvolvimento.
 
-## Contas do setor e demandas
+## POP Financeiro demo
 
-O sistema agora tem módulo de usuários:
+As telas de demonstração já incluem:
 
-- `/usuarios`: lista pessoas do setor, perfil, status e quantidade de demandas.
-- `/usuarios/novo`: cria uma conta interna com senha inicial.
-- `/minhas-demandas`: mostra tarefas do usuário logado; se o login estiver desligado, mostra demandas abertas do setor.
+- checklist POP financeiro;
+- notas fiscais;
+- controle DDA;
+- ocorrências SERASA.
 
-Perfis disponíveis:
-
-- `ADMIN`: administra usuários, clientes, cobranças e auditoria.
-- `FINANCEIRO`: cria clientes, cobranças e tarefas.
-- `OPERADOR`: executa tarefas, registra contatos e acompanha cobranças.
-- `LEITURA`: consulta informações sem alterar dados.
-
-Para cada pessoa ver apenas suas demandas, faça:
-
-1. Suba o banco.
-2. Rode `npm run db:push` e `npm run db:seed`.
-3. Crie os usuários em `/usuarios/novo`.
-4. Altere `AUTH_REQUIRED="true"` no `.env`.
-5. Atribua tarefas usando o responsável nas APIs/telas de tarefas.
-
-## Fluxo de dados
-
-1. Usuário preenche um formulário.
-2. React Hook Form controla estado e erros do formulário.
-3. Zod valida os dados no front.
-4. O formulário envia JSON para uma rota em `src/app/api`.
-5. A rota valida de novo com Zod no servidor.
-6. A rota aplica regra de negócio.
-7. Prisma grava no PostgreSQL.
-8. Alterações importantes criam auditoria e histórico.
-9. A tela recarrega dados atualizados.
-
-Validação duplicada no front e no back é intencional: o front melhora a experiência, o back protege o sistema.
-
-## Ponte com Java/Spring
-
-- `schema.prisma` lembra entidades JPA, mas o Prisma gera o client de acesso ao banco.
-- `route.ts` lembra `@RestController`.
-- Schemas Zod lembram DTOs com validações.
-- `src/lib/server/rules.ts` lembra uma camada de service com regra de negócio.
-- Enums do Prisma lembram `enum` em Java.
-- Relações Prisma (`Cliente` -> `Cobranca` -> `Parcela`) lembram `@OneToMany` e `@ManyToOne`.
-
-## Regras já implementadas
-
-- Cliente com PF, PJ ou condomínio.
-- Cobrança à vista com parcela única.
-- Cobrança parcelada criada com todas as parcelas.
-- Boleto vinculado à parcela/cobrança.
-- Histórico de interações por canal.
-- Agenda automática: envio, reenvio preventivo, 5, 10 e 30 dias.
-- Auditoria em criação, atualização, exclusão e mudança de status.
-- Dashboard, relatórios e casos críticos.
-
-## Observação sobre boletos
-
-Os códigos de boleto criados pela aplicação são demonstrativos. Para emissão bancária real será necessário integrar com banco, gateway ou sistema homologado.
+Não há automação real de envio por e-mail, WhatsApp ou integrações externas; a ideia é apenas apresentar o esqueleto funcional.

@@ -1,51 +1,16 @@
 {
-  "name": "sistema-cobranca",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "postinstall": "prisma generate",
-    "dev": "next dev",
-    "build": "prisma generate && next build",
-    "start": "next start",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit",
-    "prisma:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
-  },
-  "dependencies": {
-    "@hookform/resolvers": "^5.4.0",
-    "@prisma/adapter-pg": "^7.8.0",
-    "@prisma/client": "^7.8.0",
-    "@tanstack/react-query": "^5.100.14",
-    "bcryptjs": "^3.0.3",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^1.17.0",
-    "next": "16.2.6",
-    "next-auth": "^4.24.14",
-    "pg": "^8.21.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-hook-form": "^7.76.1",
-    "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/pg": "^8.20.0",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
-    "prisma": "^7.8.0",
-    "tailwindcss": "^4",
-    "tsx": "^4.22.3",
-    "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  }
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^3.1",
+        "tailwindcss": "^4.0.0",
+        "vite": "^8.0.0"
+    }
 }
